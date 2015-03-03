@@ -14,7 +14,7 @@ namespace vportal.api
     public partial class vPortalExampleForm : Form
     {
         //Create an instance of the vPortal API class
-        public vPortalAPI vpApi = new vPortalAPI("My App", true);
+        public vPortalAPI vpApi;
 
         public vPortalExampleForm()
         {
@@ -22,6 +22,13 @@ namespace vportal.api
         }
         private void vPortalExampleForm_Load(object sender, EventArgs e)
         {
+            apiURLtextBox.Text = vportal.api.Properties.Settings.Default.API_URL.ToString();
+            apiUSERtextBox.Text = vportal.api.Properties.Settings.Default.username.ToString();
+            apiPSWDtextBox.Text = vportal.api.Properties.Settings.Default.password.ToString();
+            apiTOKENtextBox.Text = vportal.api.Properties.Settings.Default.token.ToString();
+
+            vpApi = new vPortalAPI("My App", true, apiURLtextBox.Text, apiUSERtextBox.Text, apiPSWDtextBox.Text, apiTOKENtextBox.Text);
+
             //We have an enumerator in place to return Search Criteria values to populate your combobox
             //you may use your own criteria names, but refer to the vPortal API documentation for the correct integer to pass back
             //to the API's constructor. if this is not correct, then no data will be return (or possibly wrong data because the search criteria may be wrong)
@@ -29,11 +36,6 @@ namespace vportal.api
             this.SearchCriteriaComboBox.DataSource = vpApi.GetSearchCriteriaValues();
             this.SearchCriteriaComboBox.ValueMember = "Key";
             this.SearchCriteriaComboBox.DisplayMember = "Value";
-
-            apiURLtextBox.Text = vportal.api.Properties.Settings.Default.API_URL.ToString();
-            apiUSERtextBox.Text = vportal.api.Properties.Settings.Default.username.ToString();
-            apiPSWDtextBox.Text = vportal.api.Properties.Settings.Default.password.ToString();
-            apiTOKENtextBox.Text = vportal.api.Properties.Settings.Default.token.ToString();
         }
 
         #region vPortalAPI_Data_GET
@@ -49,7 +51,7 @@ namespace vportal.api
 
             //create a string variable = vp.GetMasterData(Visitor Portal URL, username, password, New Records Only or All)<---Username and password must be plain text,
             //you should encrypt this in your own configuration and decrypt when presenting it here
-            string GetMasterRecords = vpApi.vPortalGetAllMasterData(apiURLtextBox.Text, apiUSERtextBox.Text, apiPSWDtextBox.Text, apiTOKENtextBox.Text, NewRecordsOnly);
+            string GetMasterRecords = vpApi.vPortalGetAllMasterData(NewRecordsOnly);
 
             //make sure there is actually a return result by checking the string length
             if (GetMasterRecords.Length > 0)
@@ -113,7 +115,7 @@ namespace vportal.api
 
                 //create a string variable = vp.GetMasterData(Visitor Portal URL, username, password, New Records Only or All)<---Username and password must be plain text,
                 //you should encrypt this in your own configuration and decrypt when presenting it here
-                string GetSpecificMasterRecord = vpApi.vPortalGetSpecificMaster(apiURLtextBox.Text, apiUSERtextBox.Text, apiPSWDtextBox.Text, apiTOKENtextBox.Text, CriteriaType, SearchCriteriaTextBox.Text);
+                string GetSpecificMasterRecord = vpApi.vPortalGetSpecificMaster(CriteriaType, SearchCriteriaTextBox.Text);
 
                 //make sure there is actually a return result by checking the string length
                 if (GetSpecificMasterRecord.Length > 0)
@@ -190,7 +192,7 @@ namespace vportal.api
 
             string jsonreturn = vpApi.BuildMasterInsertUpdate(am);
             //Execute Insert data to vPortal API
-            string result = vpApi.vPortalInsertMasterData(apiURLtextBox.Text, apiUSERtextBox.Text, apiPSWDtextBox.Text, apiTOKENtextBox.Text, jsonreturn);
+            string result = vpApi.vPortalInsertMasterData(jsonreturn);
 
             InsertUpdateMasterDataResponseTextBox.Text = result;
         }
@@ -227,7 +229,7 @@ namespace vportal.api
 
                 string jsonreturn = vpApi.BuildMasterInsertUpdate(am);
                 //Execute Update data to vPortal API
-                string result = vpApi.vPortalUpdateMasterData(apiURLtextBox.Text, apiUSERtextBox.Text, apiPSWDtextBox.Text, apiTOKENtextBox.Text, jsonreturn);
+                string result = vpApi.vPortalUpdateMasterData(jsonreturn);
 
                 InsertUpdateMasterDataResponseTextBox.Text = result;
             }
